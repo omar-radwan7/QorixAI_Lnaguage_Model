@@ -1,0 +1,196 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 230 23% 15%; /* Navy blue background */
+    --foreground: 270 84% 81%; /* Purple foreground text */
+
+    --card: 230 23% 15%;
+    --card-foreground: 270 84% 81%;
+
+    --popover: 230 23% 15%;
+    --popover-foreground: 270 84% 81%;
+
+    --primary: 270 84% 75%;
+    --primary-foreground: 230 23% 15%;
+
+    --secondary: 230 25% 20%;
+    --secondary-foreground: 270 84% 81%;
+
+    --muted: 230 25% 20%;
+    --muted-foreground: 270 50% 70%;
+
+    --accent: 230 25% 20%;
+    --accent-foreground: 270 84% 81%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 270 84% 81%;
+
+    --border: 230 25% 25%;
+    --input: 230 25% 20%;
+    --ring: 270 84% 70%;
+
+    --sidebar-background: 230 23% 15%;
+    --sidebar-foreground: 270 84% 81%;
+    --sidebar-primary: 270 84% 75%;
+    --sidebar-primary-foreground: 230 23% 15%;
+    --sidebar-accent: 230 25% 20%;
+    --sidebar-accent-foreground: 270 84% 81%;
+    --sidebar-border: 230 25% 25%;
+    --sidebar-ring: 270 84% 70%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@keyframes pulse-slow {
+  0%, 100% { 
+    opacity: 1; 
+  }
+  50% { 
+    opacity: 0.5; 
+  }
+}
+
+@keyframes fade-in {
+  0% { 
+    opacity: 0; 
+    transform: translateY(10px); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 2s ease-in-out infinite;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+.animate-blink {
+  animation: blink 1s ease-in-out infinite;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .prose {
+    font-size: 0.9rem;
+  }
+}
+
+/* Dark mode code block styles */
+.dark pre {
+  background-color: #1e1e1e !important;
+  color: #e6e6e6 !important;
+  border-color: #333 !important;
+}
+
+.dark pre code {
+  color: #e6e6e6 !important;
+}
+
+.dark .code-language-label {
+  background-color: #2d2d2d !important;
+  color: #d1d5db !important;
+}
+
+.dark .code-copy-button {
+  background-color: #2d2d2d !important;
+  color: #d1d5db !important;
+}
+
+/* Code block styling */
+pre {
+  border-radius: 0.375rem;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* Specific code block styling for light and dark mode */
+pre code {
+  display: block;
+  counter-reset: line;
+  color: #383a42;
+  padding: 0;
+  background: transparent;
+}
+
+.dark pre code {
+  color: #abb2bf;
+}
+
+/* Theme transition */
+.theme-transition {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
