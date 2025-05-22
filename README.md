@@ -10,8 +10,7 @@
 - File upload for on-the-fly analysis  
 - Secure API key management (stored in browser only)  
 - Light/Dark mode toggle  
-- Fully responsive and mobile-ready UI  
-- Rate limit status display  
+- Fully responsive and mobile-ready UI   
 - Runs 100% client-side — no server or database required
 
 ---
