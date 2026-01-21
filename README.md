@@ -1,6 +1,6 @@
-# 💬 Qorix AI Assistant
+# 💬 AI Chat Assistant
 
-**Qorix AI Assistant** is a lightweight, browser-based AI chat application that leverages the [OpenRouter API](https://openrouter.ai) (specifically the Deepseek model) to deliver intelligent and interactive conversations — all with zero backend.
+**AI Chat Assistant** is a lightweight, browser-based AI chat application that leverages the [OpenRouter API](https://openrouter.ai) (specifically the Qwen model) to deliver intelligent and interactive conversations — all with zero backend.
 
 ---
 
@@ -38,11 +38,11 @@
 
 ## 📦 Data Storage
 
-Qorix does **not use a traditional database**. Instead, it stores the following in `localStorage`:
+This app does **not use a traditional database**. Instead, it stores the following in `localStorage`:
 
 - Chat history under `chat-sessions`  
-- API key under `qorix_openrouter_api_key`  
-- User preferences under `qorix_api_provider`
+- API key under `openrouter_api_key`  
+- User preferences under `api_provider`
 
 This makes the app fully client-side, private, and server-free — but data is tied to the current browser and will be lost if the user clears it.
 

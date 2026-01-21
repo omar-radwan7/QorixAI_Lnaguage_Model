@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
@@ -6,7 +5,7 @@ import { Moon, Sun } from 'lucide-react';
 export function ThemeToggle() {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     // Check for system preference or saved preference
-    const savedTheme = localStorage.getItem('qorix-theme');
+    const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark' || savedTheme === 'light') {
       return savedTheme;
     }
@@ -24,7 +23,7 @@ export function ThemeToggle() {
       root.classList.remove('dark');
     }
     
-    localStorage.setItem('qorix-theme', theme);
+    localStorage.setItem('theme', theme);
     
     // Remove transition class after theme change is complete
     const transitionEndHandler = () => {
@@ -48,12 +47,12 @@ export function ThemeToggle() {
       size="icon" 
       onClick={toggleTheme}
       aria-label="Toggle theme"
-      className="rounded-full"
+      className="h-10 w-10 rounded-xl text-gray-600 hover:text-amber-500 hover:bg-amber-500/10 dark:text-gray-400 dark:hover:text-amber-400 dark:hover:bg-amber-500/10 transition-all duration-200"
     >
       {theme === 'dark' ? (
-        <Moon className="h-5 w-5 text-[#9b87f5]" />
+        <Moon className="h-5 w-5" />
       ) : (
-        <Sun className="h-5 w-5 text-[#9b87f5]" />
+        <Sun className="h-5 w-5" />
       )}
     </Button>
   );

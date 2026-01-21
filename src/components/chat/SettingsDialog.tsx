@@ -1,12 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Settings } from 'lucide-react';
+import { Settings, Key, Shield, ExternalLink } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
-import { saveApiKey, getCurrentProvider, setCurrentProvider } from '@/services/ai-service';
+import { saveApiKey } from '@/services/ai-service';
 
 interface SettingsDialogProps {
   onClose?: () => void;
@@ -14,22 +13,20 @@ interface SettingsDialogProps {
 
 export const SettingsDialog: React.FC<SettingsDialogProps> = ({ onClose }) => {
   const [open, setOpen] = useState(false);
-  const [openRouterApiKey, setOpenRouterApiKey] = useState('');
-  const [selectedProvider, setSelectedProvider] = useState<'openrouter-qwen'>('openrouter-qwen');
+  const [apiKey, setApiKey] = useState('');
 
   useEffect(() => {
-    // Load API key from localStorage when the component mounts
-    const storedOpenRouterApiKey = localStorage.getItem('qorix_openrouter_api_key') || '';
-    
-    setOpenRouterApiKey(storedOpenRouterApiKey);
-    setSelectedProvider('openrouter-qwen'); // Default to Qwen since it's now the only option
-  }, []);
+    // Load API key from localStorage when dialog opens
+    if (open) {
+      const storedKey = localStorage.getItem('openrouter_api_key') || '';
+      setApiKey(storedKey);
+    }
+  }, [open]);
 
   const handleSave = () => {
-    if (openRouterApiKey.trim()) {
-      saveApiKey(openRouterApiKey.trim(), 'openrouter');
-      setCurrentProvider('openrouter-qwen');
-      toast.success('OpenRouter API key saved successfully (Qwen model)');
+    if (apiKey.trim()) {
+      saveApiKey(apiKey.trim());
+      toast.success('API key saved successfully');
       setOpen(false);
       if (onClose) onClose();
     } else {
@@ -43,50 +40,76 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ onClose }) => {
         variant="ghost" 
         size="icon"
         onClick={() => setOpen(true)}
-        className="text-qorix-dark/70 hover:text-qorix-dark hover:bg-qorix-dark/5 dark:text-white/70 dark:hover:text-white dark:hover:bg-white/5"
+        className="h-10 w-10 rounded-xl text-gray-600 hover:text-emerald-600 hover:bg-emerald-500/10 dark:text-gray-400 dark:hover:text-emerald-400 dark:hover:bg-emerald-500/10 transition-all duration-200"
       >
         <Settings size={20} />
       </Button>
       
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-md dark:bg-[#1A1F2C] dark:text-[#d6bcfa] dark:border-[#3a3f4b]">
+        <DialogContent className="sm:max-w-md bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-800/50 shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="dark:text-[#9b87f5]">Settings</DialogTitle>
-            <DialogDescription className="dark:text-[#d6bcfa]/70">
-              Configure your Qorix AI settings and API keys
+            <DialogTitle className="flex items-center gap-2 text-xl font-semibold text-gray-900 dark:text-white">
+              <Settings className="w-5 h-5 text-emerald-500" />
+              Settings
+            </DialogTitle>
+            <DialogDescription className="text-gray-500 dark:text-gray-400">
+              Configure your OpenRouter API key for GPT access
             </DialogDescription>
           </DialogHeader>
           
-          <div className="py-4">
-            <div className="mt-4">
-              <Label htmlFor="openRouterApiKey" className="text-sm font-medium dark:text-[#d6bcfa]">
-                OpenRouter API Key (Qwen model)
-              </Label>
-              <div className="mt-1">
-                <Input
-                  id="openRouterApiKey"
-                  type="password"
-                  value={openRouterApiKey}
-                  onChange={(e) => setOpenRouterApiKey(e.target.value)}
-                  placeholder="sk-or-v1-..."
-                  className="w-full dark:bg-[#282c34] dark:text-[#d6bcfa] dark:border-[#3a3f4b]"
-                />
-                <p className="mt-2 text-sm text-qorix-dark/60 dark:text-white/60">
-                  Enter your OpenRouter API key. Your key should begin with "sk-or-v1-"
+          <div className="py-6 space-y-6">
+            {/* API Key Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Key className="w-4 h-4 text-emerald-500" />
+                <Label htmlFor="apiKey" className="text-sm font-medium text-gray-900 dark:text-white">
+                  OpenRouter API Key
+                </Label>
+              </div>
+              
+              <Input
+                id="apiKey"
+                type="password"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                placeholder="sk-or-v1-..."
+                className="w-full h-12 rounded-xl bg-gray-50/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
+              />
+              
+              <div className="flex items-start gap-2 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
+                <Shield className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-gray-600 dark:text-gray-400">
+                  Your API key is stored locally in your browser and never sent to our servers.
                 </p>
               </div>
             </div>
+
+            {/* Get API Key Link */}
+            <a 
+              href="https://openrouter.ai/keys" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full p-3 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-emerald-500/50 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200 group"
+            >
+              <span className="text-sm">Get your API key at OpenRouter</span>
+              <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-200" />
+            </a>
           </div>
           
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <Button 
               variant="outline" 
               onClick={() => setOpen(false)}
-              className="dark:bg-transparent dark:text-[#d6bcfa] dark:border-[#3a3f4b] dark:hover:bg-[#282c34]"
+              className="rounded-xl border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
             >
               Cancel
             </Button>
-            <Button onClick={handleSave} className="dark:bg-[#7E69AB] dark:text-white dark:hover:bg-[#6E59A5]">Save</Button>
+            <Button 
+              onClick={handleSave} 
+              className="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/25 transition-all duration-200"
+            >
+              Save Settings
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

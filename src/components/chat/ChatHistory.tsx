@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { MessageCircle, Trash2 } from 'lucide-react';
+import { MessageCircle, Trash2, Plus, Sparkles } from 'lucide-react';
 import { SettingsDialog } from './SettingsDialog';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 
@@ -27,65 +26,101 @@ export const ChatHistory: React.FC<ChatHistoryProps> = ({
 }) => {
   return (
     <aside className="h-full p-4 flex flex-col overflow-hidden">
-      <div className="flex justify-between items-center mb-6">
-        <Button 
-          onClick={onNewChat}
-          className="flex-1 bg-[#9b87f5] hover:bg-[#9b87f5]/90 text-white"
-        >
-          New Chat
-        </Button>
-        <div className="ml-2 flex gap-1">
-          <ThemeToggle />
-          <SettingsDialog />
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 shadow-lg shadow-emerald-500/20">
+          <Sparkles className="w-5 h-5 text-white" />
+        </div>
+        <div className="flex-1">
+          <h1 className="font-semibold text-gray-900 dark:text-white">AI Chat</h1>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Assistant</p>
         </div>
       </div>
+
+      {/* New Chat Button */}
+      <Button 
+        onClick={onNewChat}
+        className="w-full h-12 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/25 transition-all duration-200 mb-6 group"
+      >
+        <Plus className="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-300" />
+        New Chat
+      </Button>
       
-      <div className="text-sm font-semibold text-[#1A1F2C]/60 mb-2 dark:text-[#d6bcfa]/70">
-        {sessions.length > 0 ? 'Recent chats' : 'Start a new chat'}
+      {/* Sessions List */}
+      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 px-1">
+        {sessions.length > 0 ? 'Recent Conversations' : 'No conversations yet'}
       </div>
       
-      <div className="flex-1 overflow-y-auto space-y-2">
+      <div className="flex-1 overflow-y-auto space-y-1 pr-1 -mr-1">
         {sessions.map((session) => (
           <div key={session.id} className="group relative">
-            <Button
-              variant={session.isActive ? "secondary" : "ghost"}
-              className={`w-full justify-start text-left h-auto py-3 pr-10 ${
-                session.isActive ? 'bg-[#9b87f5]/10' : ''
+            <button
+              className={`w-full text-left p-3 rounded-xl transition-all duration-200 ${
+                session.isActive 
+                  ? 'bg-emerald-500/10 border border-emerald-500/20 shadow-sm' 
+                  : 'hover:bg-gray-100 dark:hover:bg-gray-800/50 border border-transparent'
               }`}
               onClick={() => onSelectSession(session.id)}
             >
               <div className="flex items-start gap-3">
-                <MessageCircle className="h-5 w-5 text-[#9b87f5] shrink-0 mt-0.5" />
-                <div className="truncate">
-                  <div className="font-medium truncate">{session.title}</div>
-                  <div className="text-xs text-[#1A1F2C]/60 dark:text-[#d6bcfa]/60">{session.date}</div>
+                <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${
+                  session.isActive 
+                    ? 'bg-gradient-to-br from-emerald-500 to-teal-500 text-white' 
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
+                }`}>
+                  <MessageCircle className="h-4 w-4" />
+                </div>
+                <div className="flex-1 min-w-0 pr-6">
+                  <div className={`font-medium truncate text-sm ${
+                    session.isActive 
+                      ? 'text-emerald-700 dark:text-emerald-400' 
+                      : 'text-gray-700 dark:text-gray-300'
+                  }`}>
+                    {session.title}
+                  </div>
+                  <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                    {session.date}
+                  </div>
                 </div>
               </div>
-            </Button>
+            </button>
             {onDeleteSession && (
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-red-500 hover:bg-red-500/10 dark:text-gray-500 dark:hover:text-red-400"
                 onClick={(e) => {
                   e.stopPropagation();
                   onDeleteSession(session.id);
                 }}
                 aria-label="Delete chat"
               >
-                <Trash2 className="h-4 w-4 text-[#1A1F2C]/60 hover:text-red-500 dark:text-[#d6bcfa]/60 dark:hover:text-red-400" />
+                <Trash2 className="h-4 w-4" />
               </Button>
             )}
           </div>
         ))}
       </div>
-      
+
+      {/* Empty State */}
       {sessions.length === 0 && (
-        <div className="flex flex-col items-center justify-center text-[#1A1F2C]/60 text-sm p-4 mt-8 text-center dark:text-[#d6bcfa]/70">
-          <MessageCircle className="h-12 w-12 text-[#9b87f5]/50 mb-3" />
-          <p>Start a new chat to begin your conversation!</p>
+        <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 flex items-center justify-center mb-4">
+            <MessageCircle className="h-8 w-8 text-emerald-500/50" />
+          </div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Start a new chat to begin your conversation!
+          </p>
         </div>
       )}
+      
+      {/* Footer Actions */}
+      <div className="mt-4 pt-4 border-t border-gray-200/50 dark:border-gray-800/50">
+        <div className="flex items-center justify-between">
+          <ThemeToggle />
+          <SettingsDialog />
+        </div>
+      </div>
     </aside>
   );
 };

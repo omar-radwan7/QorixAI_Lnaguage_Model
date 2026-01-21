@@ -1,8 +1,7 @@
-
 import React, { useState, useRef, useEffect, ChangeEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { SendHorizontal, Paperclip } from 'lucide-react';
+import { SendHorizontal, Paperclip, X, FileText, Image, File } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 
 interface ChatInputProps {
@@ -37,6 +36,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }
       onSendMessage(finalMessage, attachment || undefined);
       setMessage('');
       setAttachment(null);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
       // Reset textarea height
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
@@ -57,6 +60,15 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }
     return 'file';
   };
 
+  const getFileIcon = (file: File) => {
+    if (file.type.startsWith('image/')) {
+      return <Image className="h-4 w-4" />;
+    } else if (file.type === 'application/pdf' || file.type.includes('word') || file.type.includes('doc')) {
+      return <FileText className="h-4 w-4" />;
+    }
+    return <File className="h-4 w-4" />;
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -67,8 +79,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        toast.error('File size must be less than 5MB');
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+        toast.error('File size must be less than 10MB');
         return;
       }
       setAttachment(file);
@@ -85,62 +97,104 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+    toast.info('Attachment removed');
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
   return (
-    <form onSubmit={handleSubmit} className="relative max-w-3xl mx-auto w-full">
+    <form onSubmit={handleSubmit} className="relative max-w-4xl mx-auto w-full">
+      {/* Attachment Preview */}
       {attachment && (
-        <div className="mb-2 p-2 border border-[#9b87f5]/30 rounded-md bg-[#9b87f5]/5 flex items-center justify-between dark:bg-[#7E69AB]/10 dark:border-[#7E69AB]/30">
-          <span className="text-sm truncate">{attachment.name}</span>
-          <button 
-            type="button" 
-            onClick={removeAttachment}
-            className="text-[#9b87f5] hover:text-[#7E69AB] dark:text-[#9b87f5] dark:hover:text-[#d6bcfa]"
-          >
-            ×
-          </button>
+        <div className="mb-3 p-3 rounded-xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 dark:from-emerald-500/5 dark:to-teal-500/5 dark:border-emerald-500/10 backdrop-blur-sm animate-fade-in">
+          <div className="flex items-center gap-3">
+            <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+              {getFileIcon(attachment)}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                {attachment.name}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {formatFileSize(attachment.size)}
+              </p>
+            </div>
+            <button 
+              type="button" 
+              onClick={removeAttachment}
+              className="flex-shrink-0 p-2 rounded-lg hover:bg-red-500/10 text-gray-400 hover:text-red-500 transition-all duration-200"
+              aria-label="Remove attachment"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       )}
-      <div className="relative flex items-center">
+      
+      {/* Input Container */}
+      <div className="relative flex items-end gap-2 p-2 rounded-2xl bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-xl shadow-gray-900/5 dark:shadow-black/20 transition-all duration-300 focus-within:border-emerald-500/50 focus-within:shadow-emerald-500/10">
+        {/* Hidden File Input */}
         <input
           type="file"
           ref={fileInputRef}
           onChange={handleFileChange}
           className="hidden"
-          accept="image/*,.pdf,.doc,.docx,.txt"
+          accept="image/*,.pdf,.doc,.docx,.txt,.md,.json,.js,.ts,.css,.html"
         />
+        
+        {/* Attachment Button */}
         <Button 
           type="button"
           onClick={triggerFileInput}
-          className="absolute left-2 h-9 w-9 rounded-full bg-transparent p-2 text-[#9b87f5] hover:bg-[#9b87f5]/10 transition-colors z-10 dark:text-[#d6bcfa] dark:hover:bg-[#7E69AB]/20"
+          variant="ghost"
+          size="icon"
+          className="flex-shrink-0 h-10 w-10 rounded-xl text-gray-500 hover:text-emerald-600 hover:bg-emerald-500/10 dark:text-gray-400 dark:hover:text-emerald-400 dark:hover:bg-emerald-500/10 transition-all duration-200"
           aria-label="Attach file"
         >
           <Paperclip className="h-5 w-5" />
         </Button>
+        
+        {/* Text Input */}
         <Textarea
           ref={textareaRef}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Message Qorix AI..."
-          className="min-h-[48px] max-h-[150px] w-full resize-none rounded-xl border-[#9b87f5]/30 pl-12 pr-12 shadow-sm focus:border-[#9b87f5] focus:ring-[#9b87f5]/20 transition-all dark:border-[#7E69AB]/30 dark:focus:border-[#9b87f5] dark:focus:ring-[#7E69AB]/20 dark:bg-[#282c34] dark:text-[#d6bcfa]"
+          placeholder="Type your message..."
+          className="flex-1 min-h-[44px] max-h-[150px] resize-none border-0 bg-transparent px-2 py-3 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
           disabled={isLoading}
           rows={1}
         />
+        
+        {/* Send Button */}
         <Button 
           type="submit"
           disabled={(!message.trim() && !attachment) || isLoading}
-          className="absolute right-2 h-9 w-9 rounded-full bg-gradient-to-r from-[#9b87f5] to-[#7E69AB] p-2 transition-opacity hover:opacity-90"
+          size="icon"
+          className="flex-shrink-0 h-10 w-10 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/25 disabled:opacity-50 disabled:shadow-none transition-all duration-200 disabled:cursor-not-allowed"
           aria-label="Send message"
         >
           <SendHorizontal className="h-5 w-5" />
         </Button>
       </div>
-      <div className="absolute bottom-full right-0 mb-2 text-xs text-gray-500 dark:text-gray-400">
-        {isLoading && (
-          <span className="animate-pulse-slow">Qorix AI is thinking...</span>
-        )}
-      </div>
+      
+      {/* Loading Indicator */}
+      {isLoading && (
+        <div className="absolute -top-8 left-1/2 -translate-x-1/2">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg border border-gray-200/50 dark:border-gray-700/50">
+            <div className="flex gap-1">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '0ms' }}></span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '150ms' }}></span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '300ms' }}></span>
+            </div>
+            <span className="text-sm text-gray-600 dark:text-gray-300">AI is thinking...</span>
+          </div>
+        </div>
+      )}
     </form>
   );
 };

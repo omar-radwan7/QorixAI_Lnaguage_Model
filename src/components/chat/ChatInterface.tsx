@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { toast } from '@/components/ui/sonner';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { ChatHistory } from './ChatHistory';
 import { generateCompletion } from '@/services/ai-service';
+import { Sparkles, MessageSquare, Zap, Brain, Code } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -28,7 +28,7 @@ interface Session {
 export const ChatInterface: React.FC = () => {
   const [sessions, setSessions] = useState<Session[]>(() => {
     // Load sessions from localStorage if available
-    const savedSessions = localStorage.getItem('qorix-sessions');
+    const savedSessions = localStorage.getItem('chat-sessions');
     if (savedSessions) {
       try {
         return JSON.parse(savedSessions);
@@ -66,7 +66,7 @@ export const ChatInterface: React.FC = () => {
 
   useEffect(() => {
     // Save sessions to localStorage when they change
-    localStorage.setItem('qorix-sessions', JSON.stringify(sessions));
+    localStorage.setItem('chat-sessions', JSON.stringify(sessions));
   }, [sessions]);
 
   useEffect(() => {
@@ -174,7 +174,7 @@ export const ChatInterface: React.FC = () => {
       
       // Add system message
       const messages = [
-        { role: 'system' as const, content: 'You are Qorix AI, a helpful assistant. Always identify yourself only as Qorix AI. Be concise and friendly in your responses. Never mention that you are made by any other company or that you are based on any specific model. You are simply Qorix AI. Always format code blocks properly using triple backticks with language specification.' },
+        { role: 'system' as const, content: 'You are a helpful AI assistant. Be concise and friendly in your responses. Always format code blocks properly using triple backticks with language specification.' },
         ...apiMessages
       ];
       
@@ -211,12 +211,10 @@ export const ChatInterface: React.FC = () => {
         );
       });
 
-      // Much faster typing animation completion - even faster now
+      // Typing animation completion
       const calculatedDelay = Math.min(
-        // Calculate based on content length, but with a much lower multiplier
-        // and cap the maximum delay at 500ms (0.5 second)
         assistantResponse.includes("```") ? 300 : Math.min(assistantResponse.length * 1, 500),
-        500 // Never wait more than 0.5 second
+        500
       );
       
       setTimeout(() => {
@@ -293,20 +291,41 @@ export const ChatInterface: React.FC = () => {
 
   const currentSession = getCurrentSession();
 
+  const features = [
+    { icon: Zap, title: "Lightning Fast", desc: "Get instant responses powered by AI" },
+    { icon: Brain, title: "Smart Context", desc: "Understands context and nuance" },
+    { icon: Code, title: "Code Ready", desc: "Syntax highlighting for code blocks" },
+  ];
+
   return (
-    <div className="flex h-screen bg-white dark:bg-[#1A1F2C]">
+    <div className="flex h-screen bg-gradient-to-br from-gray-50 via-white to-emerald-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-emerald-950/20">
+      {/* Decorative Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl dark:bg-emerald-500/5"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl dark:bg-teal-500/5"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-emerald-400/5 rounded-full blur-3xl dark:bg-emerald-400/3"></div>
+      </div>
+
       {/* Mobile sidebar button */}
       <button 
         onClick={toggleSidebar}
-        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-[#9b87f5] text-white rounded-full shadow-lg dark:bg-[#7E69AB]"
+        className="md:hidden fixed top-4 left-4 z-50 p-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl text-gray-700 dark:text-gray-200 rounded-xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 hover:scale-105 transition-all duration-200"
       >
-        {sidebarOpen ? '×' : '≡'}
+        {sidebarOpen ? (
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        ) : (
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        )}
       </button>
       
       {/* Sidebar */}
-      <div className={`fixed md:static inset-y-0 left-0 z-40 w-64 bg-white border-r border-[#9b87f5]/10 transform ${
+      <div className={`fixed md:static inset-y-0 left-0 z-40 w-72 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-r border-gray-200/50 dark:border-gray-800/50 transform ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      } md:translate-x-0 transition-transform duration-200 ease-in-out overflow-hidden dark:bg-[#1A1F2C] dark:border-[#7E69AB]/20`}>
+      } md:translate-x-0 transition-transform duration-300 ease-out overflow-hidden shadow-xl md:shadow-none`}>
         <ChatHistory 
           sessions={sessions.map(session => ({
             id: session.id,
@@ -321,20 +340,58 @@ export const ChatInterface: React.FC = () => {
       </div>
       
       {/* Main content */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden">
+      <div className="flex-1 flex flex-col min-h-0 relative z-10">
         {/* Content area */}
-        <div className="flex-1 overflow-y-auto p-3 md:p-6 pb-16 md:pb-20">
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 md:p-8 pb-8">
           {currentSession && currentSession.messages.length === 0 ? (
             <div className="flex items-center justify-center h-full">
-              <div className="text-center max-w-md mx-auto px-4">
-                <h2 className="text-xl font-bold mb-2 text-[#1A1F2C] dark:text-[#9b87f5]">Welcome to Qorix AI</h2>
-                <p className="text-[#1A1F2C]/70 mb-6 dark:text-[#d6bcfa]">
-                  How can I help you today? Ask me anything and I'll do my best to assist you.
-                </p>
+              <div className="text-center max-w-2xl mx-auto px-4 animate-fade-in">
+                {/* Hero Section */}
+                <div className="mb-8">
+                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 shadow-2xl shadow-emerald-500/30 mb-6">
+                    <Sparkles className="w-10 h-10 text-white" />
+                  </div>
+                  <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-white dark:via-gray-100 dark:to-white bg-clip-text text-transparent mb-4">
+                    AI Chat Assistant
+                  </h1>
+                  <p className="text-lg text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+                    Your intelligent companion for questions, coding help, creative writing, and more.
+                  </p>
+                </div>
+
+                {/* Feature Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                  {features.map((feature, index) => (
+                    <div 
+                      key={index}
+                      className="p-5 rounded-2xl bg-white/60 dark:bg-gray-800/40 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 hover:border-emerald-500/30 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300 group"
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 dark:from-emerald-500/20 dark:to-teal-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
+                        <feature.icon className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                      </div>
+                      <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{feature.title}</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{feature.desc}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Quick Prompts */}
+                <div className="flex flex-wrap justify-center gap-2">
+                  {["Explain quantum computing", "Write a poem about nature", "Help me debug code"].map((prompt, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleSendMessage(prompt)}
+                      className="px-4 py-2 rounded-full text-sm bg-white/80 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 text-gray-700 dark:text-gray-300 hover:border-emerald-500/50 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200 hover:scale-105"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           ) : (
-            <>
+            <div className="max-w-4xl mx-auto">
               {currentSession && currentSession.messages.map((message) => (
                 <ChatMessage 
                   key={message.id} 
@@ -356,11 +413,12 @@ export const ChatInterface: React.FC = () => {
                 />
               )}
               <div ref={messagesEndRef} />
-            </>
+            </div>
           )}
         </div>
         
-        <div className="p-3 border-t border-[#9b87f5]/10 fixed bottom-0 left-0 right-0 bg-white md:static dark:bg-[#1A1F2C] dark:border-[#7E69AB]/20">
+        {/* Input Area */}
+        <div className="flex-shrink-0 p-4 md:p-6 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-t border-gray-200/50 dark:border-gray-800/50">
           <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
         </div>
       </div>
@@ -368,7 +426,7 @@ export const ChatInterface: React.FC = () => {
       {/* Overlay for mobile */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/20 md:hidden z-30"
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm md:hidden z-30"
           onClick={() => setSidebarOpen(false)}
         />
       )}
